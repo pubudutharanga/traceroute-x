@@ -12,8 +12,10 @@ import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@traceroutex/db"
 import type { Role } from "@traceroutex/db"
+import { authConfig } from "./auth.config"
 
 const nextAuth = NextAuth({
+  ...authConfig,
   providers: [
     Google,
     GitHub,
@@ -66,17 +68,8 @@ const nextAuth = NextAuth({
     }),
   ],
 
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "github") {
         if (!user.email) return false
@@ -126,33 +119,6 @@ const nextAuth = NextAuth({
       }
 
       return token
-    },
-
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.userId as string
-        session.user.role = token.role as Role
-        session.user.username = (token.username as string) || undefined
-      }
-      return session
-    },
-
-    async redirect({ url, baseUrl }) {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:4321"
-      
-      // Allows relative urls
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-      // Allows redirect to the main blog site
-      if (url.startsWith(siteUrl)) return url
-      
-      try {
-        // Allows callback URLs on the same origin
-        if (new URL(url).origin === baseUrl) return url
-      } catch {
-        return baseUrl
-      }
-      
-      return baseUrl
     },
   },
 })
