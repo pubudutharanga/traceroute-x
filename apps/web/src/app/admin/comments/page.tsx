@@ -2,17 +2,23 @@ import { prisma } from "@traceroutex/db"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
-export default async function AdminCommentsPage() {
-  const session = await auth()
-  if (session?.user?.role !== "SUPER_ADMIN") redirect("/admin/dashboard")
+type CommentWithUser = Awaited<ReturnType<typeof getComments>>[number]
 
-  const comments = await prisma.comment.findMany({
+async function getComments() {
+  return prisma.comment.findMany({
     include: {
       user: { select: { name: true, avatarUrl: true, email: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 50,
   })
+}
+
+export default async function AdminCommentsPage() {
+  const session = await auth()
+  if (session?.user?.role !== "SUPER_ADMIN") redirect("/admin/dashboard")
+
+  const comments: CommentWithUser[] = await getComments()
 
   return (
     <div className="space-y-6">
