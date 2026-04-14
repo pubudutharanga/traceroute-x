@@ -15,7 +15,7 @@
     "@astrojs/mdx": "^3.1.0",
     "@astrojs/react": "^4.2.0",
     "@astrojs/rss": "^4.0.18",
-    "@astrojs/sitemap": "~3.5.2",
+    "@astrojs/sitemap": "~3.5.1",
     "@traceroutex/config": "workspace:*",
     "@traceroutex/db": "workspace:*",
     "@traceroutex/ui": "workspace:*",
