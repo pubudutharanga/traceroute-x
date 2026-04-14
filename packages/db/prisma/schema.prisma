@@ -1,0 +1,142 @@
+// ==============================================
+// TraceRoute X — Prisma Schema
+// ==============================================
+// Shared database schema used by both apps/web and apps/blog
+// PostgreSQL via Neon (serverless)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---- Enums ----
+
+enum Provider {
+  GOOGLE
+  GITHUB
+  CREDENTIALS
+}
+
+enum Role {
+  USER
+  AUTHOR
+  SUPER_ADMIN
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ---- Models ----
+
+/// Registered users — includes public readers (OAuth) and admins (Credentials)
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  avatarUrl    String?
+  bio          String?  @db.Text
+  location     String?
+  website      String?
+  provider     Provider
+  role         Role     @default(USER)
+  username     String?  @unique
+  passwordHash String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  author   Author?
+  comments Comment[]
+  likes    Like[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+/// Author profiles — linked 1:1 to User, displayed on public blog
+model Author {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName   String
+  bio           String?  @db.Text
+  avatarUrl     String?
+  twitterHandle String?
+  githubHandle  String?
+  slug          String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([slug])
+}
+
+/// Comments on blog posts — supports threading via parentId self-relation
+model Comment {
+  id        String        @id @default(cuid())
+  postSlug  String
+  content   String        @db.Text
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?      @relation("CommentThread", fields: [parentId], references: [id], onDelete: SetNull)
+  replies   Comment[]     @relation("CommentThread")
+  status    CommentStatus @default(APPROVED)
+  isDeleted Boolean       @default(false)
+  deletedAt DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([postSlug, createdAt])
+  @@index([userId])
+  @@index([parentId])
+  @@index([status])
+}
+
+/// Post likes — unique per user per post
+model Like {
+  id        String   @id @default(cuid())
+  postSlug  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postSlug, userId])
+  @@index([postSlug])
+  @@index([userId])
+}
+
+/// Aggregated analytics per post — updated incrementally
+model PostAnalytics {
+  id             String   @id @default(cuid())
+  postSlug       String   @unique
+  viewCount      Int      @default(0)
+  uniqueVisitors Int      @default(0)
+  avgReadDepth   Float    @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@index([postSlug])
+}
+
+/// Individual page view records — for detailed analytics queries
+model PageView {
+  id        String   @id @default(cuid())
+  postSlug  String
+  visitorId String
+  country   String?
+  referrer  String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([postSlug, createdAt])
+  @@index([visitorId])
+  @@index([createdAt])
+  @@index([country])
+}

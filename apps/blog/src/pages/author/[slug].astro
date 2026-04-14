@@ -1,0 +1,126 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+import { getCollection } from "astro:content"
+import { prisma } from "@traceroutex/db"
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+  const rawAuthors = [...new Set(allPosts.map((p) => p.data.author))]
+
+  const paths = await Promise.all(
+    rawAuthors.map(async (rawAuthor) => {
+      const dbAuthor = await prisma.author.findFirst({
+        where: {
+          OR: [
+            { displayName: { equals: rawAuthor, mode: "insensitive" } },
+            { slug: { equals: rawAuthor.toLowerCase().replace(/\s+/g, "-"), mode: "insensitive" } }
+          ]
+        }
+      });
+      
+      const dynamicSlug = dbAuthor?.slug || rawAuthor.toLowerCase().replace(/\s+/g, "-");
+      
+      return {
+        params: { slug: dynamicSlug },
+        props: {
+          authorName: dbAuthor?.displayName || rawAuthor.replace(/-/g, " "),
+          authorBio: dbAuthor?.bio || "Tech writer and developer at TraceRoute X. Passionate about modern web technologies and developer experience.",
+          authorAvatar: `/author/${dynamicSlug}.jpg`,
+          authorSlug: dynamicSlug,
+          posts: allPosts
+            .filter((p) => p.data.author === rawAuthor)
+            .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()),
+        }
+      }
+    })
+  )
+  return paths
+}
+
+const { authorName, authorBio, authorAvatar, authorSlug, posts } = Astro.props
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: authorName,
+  url: `https://traceroutex.com/author/${authorSlug}`,
+}
+---
+
+<BaseLayout title={authorName} description={`Read all articles by ${authorName} on TraceRoute X.`}>
+  <Header />
+
+  <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+
+  <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Author Profile -->
+    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-12 p-8 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-primary)] animate-fade-in">
+      <img
+        src={authorAvatar}
+        alt={authorName}
+        class="h-24 w-24 rounded-full object-cover"
+        width="96"
+        height="96"
+      />
+      <div class="text-center sm:text-left">
+        <h1 class="text-2xl font-bold text-[var(--text-primary)] capitalize mb-2">
+          {authorName}
+        </h1>
+        <p class="text-[var(--text-secondary)] max-w-lg mb-4 whitespace-pre-wrap">
+          {authorBio}
+        </p>
+        <div class="flex items-center justify-center sm:justify-start gap-3">
+          <span class="px-3 py-1 rounded-full bg-[var(--color-brand-100)] text-[var(--color-brand-700)] text-xs font-medium">
+            {posts.length} article{posts.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posts -->
+    <h2 class="text-xl font-bold text-[var(--text-primary)] mb-6">
+      Articles by {authorName}
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {posts.map((post, i) => (
+        <a
+          href={`/blog/${post.slug}`}
+          class="group block rounded-2xl border border-[var(--border-primary)] overflow-hidden bg-[var(--bg-elevated)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in"
+          style={`animation-delay: ${i * 60}ms`}
+        >
+          <div class="aspect-[16/9] overflow-hidden">
+            <img
+              src={post.data.coverImage}
+              alt={post.data.coverAlt}
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+              width="400"
+              height="225"
+            />
+          </div>
+          <div class="p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="px-2 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-xs font-medium text-[var(--text-secondary)]">
+                {post.data.category}
+              </span>
+              <span class="text-xs text-[var(--text-tertiary)]">
+                {post.data.publishedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </span>
+            </div>
+            <h3 class="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-link)] transition-colors line-clamp-2 mb-2">
+              {post.data.title}
+            </h3>
+            <p class="text-sm text-[var(--text-secondary)] line-clamp-2">
+              {post.data.description}
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>

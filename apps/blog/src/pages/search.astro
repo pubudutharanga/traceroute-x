@@ -1,0 +1,32 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+import { SearchPage } from "@/components/SearchPage"
+import { getCollection } from "astro:content"
+
+// Build search index at build time
+const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+const searchIndex = allPosts.map((post) => ({
+  slug: post.slug,
+  title: post.data.title,
+  description: post.data.description,
+  category: post.data.category,
+  tags: post.data.tags,
+  author: post.data.author.replace(/-/g, " "),
+  publishedAt: post.data.publishedAt.toISOString(),
+  readingTime: post.data.readingTime,
+  coverImage: post.data.coverImage,
+  coverAlt: post.data.coverAlt,
+}))
+---
+
+<BaseLayout title="Search" description="Search all articles on TraceRoute X.">
+  <Header />
+
+  <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+    <SearchPage client:load searchIndex={searchIndex} />
+  </main>
+
+  <Footer />
+</BaseLayout>

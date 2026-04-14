@@ -1,0 +1,83 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+import { getCollection } from "astro:content"
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+  const categories = [...new Set(allPosts.map((p) => p.data.category))]
+
+  return categories.map((category) => ({
+    params: { category: category.toLowerCase().replace(/\s+/g, "-") },
+    props: {
+      category,
+      posts: allPosts
+        .filter((p) => p.data.category === category)
+        .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()),
+    },
+  }))
+}
+
+const { category, posts } = Astro.props
+---
+
+<BaseLayout title={`${category} Articles`} description={`Browse all ${category} articles on TraceRoute X.`}>
+  <Header />
+
+  <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-10">
+      <nav class="text-sm text-[var(--text-tertiary)] mb-4">
+        <a href="/" class="hover:text-[var(--text-primary)] transition-colors">Home</a>
+        <span class="mx-1.5">/</span>
+        <a href="/blog" class="hover:text-[var(--text-primary)] transition-colors">Blog</a>
+        <span class="mx-1.5">/</span>
+        <span class="text-[var(--text-secondary)]">{category}</span>
+      </nav>
+      <h1 class="text-3xl font-bold text-[var(--text-primary)]">{category}</h1>
+      <p class="text-[var(--text-secondary)] mt-2">
+        {posts.length} article{posts.length !== 1 ? "s" : ""} in this category
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {posts.map((post, i) => (
+        <a
+          href={`/blog/${post.slug}`}
+          class="group block rounded-2xl border border-[var(--border-primary)] overflow-hidden bg-[var(--bg-elevated)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in"
+          style={`animation-delay: ${i * 60}ms`}
+        >
+          <div class="aspect-[16/9] overflow-hidden">
+            <img
+              src={post.data.coverImage}
+              alt={post.data.coverAlt}
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading={i < 3 ? "eager" : "lazy"}
+              width="400"
+              height="225"
+            />
+          </div>
+          <div class="p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-xs text-[var(--text-tertiary)]">
+                {post.data.publishedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </span>
+              <span class="text-xs text-[var(--text-tertiary)]">·</span>
+              <span class="text-xs text-[var(--text-tertiary)]">
+                {post.data.readingTime} min read
+              </span>
+            </div>
+            <h2 class="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-link)] transition-colors line-clamp-2 mb-2">
+              {post.data.title}
+            </h2>
+            <p class="text-sm text-[var(--text-secondary)] line-clamp-2">
+              {post.data.description}
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>

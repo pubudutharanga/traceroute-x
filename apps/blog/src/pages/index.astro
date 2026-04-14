@@ -1,0 +1,420 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+import { getCollection } from "astro:content"
+
+const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+const sortedPosts = allPosts.sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+)
+
+const featuredPosts = sortedPosts.filter((p) => p.data.featured).slice(0, 3)
+const recentPosts = sortedPosts.slice(0, 6)
+const latestPost = sortedPosts[0]
+
+const categories = [...new Set(allPosts.map((p) => p.data.category))]
+const totalReadingTime = allPosts.reduce((sum, p) => sum + p.data.readingTime, 0)
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "TraceRoute X",
+  url: "https://traceroutex.com",
+  description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://traceroutex.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+}
+---
+
+<BaseLayout title="TraceRoute X — Navigate the Tech Landscape">
+  <Header />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <main>
+    <!-- ===================== HERO ===================== -->
+    <section class="hero-section relative overflow-hidden">
+      <!-- Animated Background -->
+      <div class="hero-bg absolute inset-0 pointer-events-none"></div>
+      <div class="hero-grid absolute inset-0 pointer-events-none"></div>
+      <!-- Floating orbs -->
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center py-10 sm:py-16 md:py-24">
+          <!-- Left: Text Content -->
+          <div class="animate-fade-in-up">
+            <!-- Eyebrow -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-brand-100)] text-[var(--color-brand-700)] text-xs font-semibold mb-6 tracking-wide uppercase">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-brand-400)] opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-brand-500)]"></span>
+              </span>
+              Tech Insights
+            </div>
+
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-[var(--text-primary)] leading-[1.08] mb-6">
+              Explore the<br/>
+              <span class="hero-gradient-text">
+                future of tech.
+              </span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-[var(--text-secondary)] leading-relaxed mb-8 max-w-lg">
+              Stay ahead with the latest in technical news, cutting-edge gadget reviews, software insights, and AI breakthroughs.
+            </p>
+
+            <!-- CTAs -->
+            <div class="flex flex-wrap gap-3 mb-10">
+              <a
+                href="/blog"
+                class="btn-primary inline-flex items-center gap-2 h-12 px-7 rounded-xl font-semibold transition-all shadow-lg shadow-[var(--color-brand-600)]/25 hover:shadow-xl hover:shadow-[var(--color-brand-600)]/35 hover:-translate-y-0.5"
+              >
+                Start Reading
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+              <a
+                href="/search"
+                class="inline-flex items-center gap-2 h-12 px-6 rounded-xl border border-[var(--border-secondary)] text-[var(--text-primary)] font-medium hover:bg-[var(--bg-tertiary)] hover:border-[var(--color-brand-400)] transition-all hover:-translate-y-0.5"
+              >
+                <svg class="h-4 w-4 text-[var(--text-tertiary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Search
+              </a>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm">
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center">
+                  <svg class="h-4 w-4 text-[var(--color-brand-600)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <div>
+                  <p class="font-bold text-[var(--text-primary)]">{allPosts.length}</p>
+                  <p class="text-[var(--text-tertiary)] text-xs">Articles</p>
+                </div>
+              </div>
+              <div class="h-8 w-px bg-[var(--border-primary)] hidden sm:block"></div>
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center">
+                  <svg class="h-4 w-4 text-[var(--color-brand-600)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                </div>
+                <div>
+                  <p class="font-bold text-[var(--text-primary)]">{categories.length}</p>
+                  <p class="text-[var(--text-tertiary)] text-xs">Topics</p>
+                </div>
+              </div>
+              <div class="h-8 w-px bg-[var(--border-primary)] hidden sm:block"></div>
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center">
+                  <svg class="h-4 w-4 text-[var(--color-brand-600)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                  <p class="font-bold text-[var(--text-primary)]">{totalReadingTime}+</p>
+                  <p class="text-[var(--text-tertiary)] text-xs">Min to read</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Latest Post Feature Card -->
+          {latestPost && (
+            <div class="animate-fade-in" style="animation-delay: 200ms">
+              <a href={`/blog/${latestPost.slug}`} class="hero-card group block relative">
+                <!-- Glow effect behind card (desktop only) -->
+                <div class="absolute -inset-1 bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-accent-500)] rounded-[1.25rem] opacity-20 blur-lg group-hover:opacity-30 transition-opacity duration-500 hidden lg:block"></div>
+
+                <div class="relative rounded-2xl overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-elevated)] shadow-lg lg:shadow-xl">
+                  <!-- Image -->
+                  <div class="aspect-[2/1] sm:aspect-[16/9] overflow-hidden">
+                    <img
+                      src={latestPost.data.coverImage}
+                      alt={latestPost.data.coverAlt}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      loading="eager"
+                      width="600"
+                      height="338"
+                    />
+                    <!-- Overlay badge -->
+                    <div class="absolute top-4 left-4">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md" style="background: rgba(0,0,0,0.5); color: #ffffff;">
+                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Latest
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Content -->
+                  <div class="p-4 sm:p-6">
+                    <div class="flex items-center gap-2 mb-3">
+                      <span class="px-2.5 py-0.5 rounded-full bg-[var(--color-brand-100)] text-[var(--color-brand-700)] text-xs font-semibold">
+                        {latestPost.data.category}
+                      </span>
+                      <span class="text-xs text-[var(--text-tertiary)]">
+                        {latestPost.data.publishedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </span>
+                      <span class="text-xs text-[var(--text-tertiary)]">·</span>
+                      <span class="text-xs text-[var(--text-tertiary)]">
+                        {latestPost.data.readingTime} min read
+                      </span>
+                    </div>
+                    <h2 class="text-base sm:text-xl font-bold text-[var(--text-primary)] group-hover:text-[var(--color-brand-500)] transition-colors mb-2 line-clamp-2">
+                      {latestPost.data.title}
+                    </h2>
+                    <p class="text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed hidden sm:block">
+                      {latestPost.data.description}
+                    </p>
+                    <!-- Read more micro-CTA -->
+                    <div class="mt-4 flex items-center gap-1.5 text-sm font-semibold text-[var(--color-brand-500)] group-hover:gap-2.5 transition-all">
+                      Read article
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORIES ===================== -->
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-wrap gap-2 justify-center">
+        {categories.map(cat => (
+          <a
+            href={`/blog/category/${cat.toLowerCase().replace(/\s+/g, "-")}`}
+            class="px-4 py-2 rounded-full border border-[var(--border-primary)] text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--color-brand-600)] hover:border-[var(--color-brand-400)] hover:bg-[var(--color-brand-50)] transition-all duration-200"
+          >
+            {cat}
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- ===================== FEATURED POSTS ===================== -->
+    {featuredPosts.length > 0 && (
+      <section class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center gap-3">
+            <div class="h-1 w-8 rounded-full bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-accent-500)]"></div>
+            <h2 class="text-2xl font-bold text-[var(--text-primary)]">Featured</h2>
+          </div>
+          <a href="/blog" class="text-sm font-medium text-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] transition-colors flex items-center gap-1">
+            View all
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {featuredPosts.map((post, i) => (
+            <a
+              href={`/blog/${post.slug}`}
+              class:list={[
+                "group block rounded-2xl border border-[var(--border-primary)] overflow-hidden bg-[var(--bg-elevated)]",
+                "hover:shadow-xl hover:shadow-[var(--color-brand-500)]/5 hover:-translate-y-1.5 transition-all duration-300",
+                "animate-fade-in",
+              ]}
+              style={`animation-delay: ${i * 100}ms`}
+            >
+              <div class="aspect-[16/9] overflow-hidden relative">
+                <img
+                  src={post.data.coverImage}
+                  alt={post.data.coverAlt}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  width="600"
+                  height="338"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div class="p-5">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="px-2 py-0.5 rounded-full bg-[var(--color-brand-100)] text-[var(--color-brand-700)] text-xs font-semibold">
+                    {post.data.category}
+                  </span>
+                  {post.data.review && (
+                    <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-semibold flex items-center gap-1">
+                      <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                      {post.data.review.rating.toFixed(1)}
+                    </span>
+                  )}
+                  <span class="text-xs text-[var(--text-tertiary)] ml-auto">
+                    {post.data.readingTime} min read
+                  </span>
+                </div>
+                <h3 class="font-bold text-[var(--text-primary)] group-hover:text-[var(--color-brand-500)] transition-colors line-clamp-2 mb-2">
+                  {post.data.title}
+                </h3>
+                <p class="text-sm text-[var(--text-secondary)] line-clamp-2">
+                  {post.data.description}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- ===================== RECENT POSTS ===================== -->
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="h-1 w-8 rounded-full bg-gradient-to-r from-[var(--color-accent-500)] to-[var(--color-brand-500)]"></div>
+        <h2 class="text-2xl font-bold text-[var(--text-primary)]">Recent Posts</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {recentPosts.map((post, i) => (
+          <a
+            href={`/blog/${post.slug}`}
+            class="group block rounded-2xl border border-[var(--border-primary)] overflow-hidden bg-[var(--bg-elevated)] hover:shadow-lg hover:shadow-[var(--color-brand-500)]/5 hover:-translate-y-1.5 transition-all duration-300 animate-fade-in"
+            style={`animation-delay: ${i * 80}ms`}
+          >
+            <div class="aspect-[16/9] overflow-hidden relative">
+              <img
+                src={post.data.coverImage}
+                alt={post.data.coverAlt}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+                width="400"
+                height="225"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
+            <div class="p-5">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="px-2 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-xs font-medium text-[var(--text-secondary)]">
+                  {post.data.category}
+                </span>
+                {post.data.review && (
+                  <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-semibold flex items-center gap-1">
+                    <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    {post.data.review.rating.toFixed(1)}
+                  </span>
+                )}
+                <span class="text-xs text-[var(--text-tertiary)] ml-auto">
+                  {post.data.publishedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </span>
+              </div>
+              <h3 class="font-bold text-[var(--text-primary)] group-hover:text-[var(--color-brand-500)] transition-colors line-clamp-2 mb-2">
+                {post.data.title}
+              </h3>
+              <p class="text-sm text-[var(--text-secondary)] line-clamp-2">
+                {post.data.description}
+              </p>
+              <div class="flex items-center gap-2 mt-4 pt-3 border-t border-[var(--border-primary)]">
+                <svg class="h-3.5 w-3.5 text-[var(--text-tertiary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span class="text-xs text-[var(--text-tertiary)]">
+                  {post.data.readingTime} min read
+                </span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  /* Hero gradient text */
+  .hero-gradient-text {
+    background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-500), var(--color-brand-400));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-shift 6s ease-in-out infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Hero background */
+  .hero-bg {
+    background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(99, 102, 241, 0.12), transparent),
+                radial-gradient(ellipse 50% 40% at 80% 50%, rgba(6, 182, 212, 0.08), transparent);
+  }
+
+  [data-theme="dark"] .hero-bg {
+    background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
+                radial-gradient(ellipse 50% 40% at 80% 50%, rgba(6, 182, 212, 0.1), transparent);
+  }
+
+  /* Grid pattern overlay */
+  .hero-grid {
+    background-image: 
+      linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  [data-theme="dark"] .hero-grid {
+    background-image: 
+      linear-gradient(rgba(129, 140, 248, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(129, 140, 248, 0.04) 1px, transparent 1px);
+  }
+
+  /* Floating orbs */
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .hero-orb-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba(99, 102, 241, 0.08);
+    top: -100px;
+    right: -100px;
+    animation-delay: 0s;
+  }
+
+  .hero-orb-2 {
+    width: 300px;
+    height: 300px;
+    background: rgba(6, 182, 212, 0.06);
+    bottom: -50px;
+    left: -50px;
+    animation-delay: -7s;
+  }
+
+  .hero-orb-3 {
+    width: 200px;
+    height: 200px;
+    background: rgba(99, 102, 241, 0.05);
+    top: 50%;
+    left: 40%;
+    animation-delay: -14s;
+  }
+
+  [data-theme="dark"] .hero-orb-1 { background: rgba(99, 102, 241, 0.12); }
+  [data-theme="dark"] .hero-orb-2 { background: rgba(6, 182, 212, 0.1); }
+  [data-theme="dark"] .hero-orb-3 { background: rgba(99, 102, 241, 0.08); }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -20px) scale(1.05); }
+    50% { transform: translate(-20px, 20px) scale(0.95); }
+    75% { transform: translate(15px, 10px) scale(1.02); }
+  }
+</style>

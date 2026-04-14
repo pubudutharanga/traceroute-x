@@ -1,0 +1,36 @@
+{
+  "name": "@traceroutex/blog",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port 4321",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "astro check",
+    "typecheck": "astro check",
+    "clean": "rimraf dist .astro .turbo node_modules"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^3.1.0",
+    "@astrojs/react": "^4.2.0",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.2",
+    "@traceroutex/config": "workspace:*",
+    "@traceroutex/db": "workspace:*",
+    "@traceroutex/ui": "workspace:*",
+    "astro": "^4.16.0",
+    "fuse.js": "^7.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "postcss": "^8.4.0",
+    "rimraf": "^6.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,94 @@
+---
+import "@/styles/global.css"
+
+interface Props {
+  title: string
+  description?: string
+  image?: string
+  type?: string
+  publishedAt?: string
+  updatedAt?: string
+  author?: string
+  noIndex?: boolean
+}
+
+const {
+  title,
+  description = "TraceRoute X — A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
+  image = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=630&fit=crop",
+  type = "website",
+  publishedAt,
+  updatedAt,
+  author,
+  noIndex = false,
+} = Astro.props
+
+const siteName = "TraceRoute X"
+const siteUrl = Astro.site?.toString() || "https://traceroutex.com"
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
+const fullTitle = title === siteName ? title : `${title} | ${siteName}`
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Title & Description -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Robots -->
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <!-- Article-specific meta -->
+    {publishedAt && <meta property="article:published_time" content={publishedAt} />}
+    {updatedAt && <meta property="article:modified_time" content={updatedAt} />}
+    {author && <meta property="article:author" content={author} />}
+
+    <!-- Favicon & RSS -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title={siteName} href={`${new URL("rss.xml", siteUrl)}`} />
+
+    <!-- Font preload -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Theme init (prevent FOUC) -->
+    <script is:inline>
+      (function() {
+        try {
+          var theme = localStorage.getItem('traceroutex-theme');
+          if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <slot />
+  </body>
+</html>

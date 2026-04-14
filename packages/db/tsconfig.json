@@ -1,0 +1,9 @@
+{
+  "extends": "@traceroutex/config/tsconfig/library",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts", "prisma/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

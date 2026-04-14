@@ -1,0 +1,311 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+import { getCollection } from "astro:content"
+import { LikeButton, CommentSection, ShareButtons } from "@traceroutex/ui"
+import ReviewSummary from "@/components/ReviewSummary.astro"
+import { prisma } from "@traceroutex/db"
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft)
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }))
+}
+
+const { post } = Astro.props
+const { Content, headings } = await post.render()
+
+// Fetch dynamic author data from DB
+const dbAuthor = await prisma.author.findFirst({
+  where: {
+    OR: [
+      { displayName: { equals: post.data.author, mode: "insensitive" } },
+      { slug: { equals: post.data.author.toLowerCase().replace(/\s+/g, "-"), mode: "insensitive" } }
+    ]
+  }
+})
+
+const authorDisplayName = dbAuthor?.displayName || post.data.author.replace(/-/g, " ")
+const dynamicSlug = dbAuthor?.slug || post.data.author.toLowerCase().replace(/\s+/g, "-")
+const authorAvatar = `/author/${dynamicSlug}.jpg`
+const authorLink = `/author/${dynamicSlug}`
+
+const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:3000"
+const siteUrl = Astro.site?.toString() || "https://traceroutex.com"
+const postUrl = `${siteUrl}blog/${post.slug}`
+
+// Get related posts (same category)
+const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+const relatedPosts = allPosts
+  .filter((p) => p.data.category === post.data.category && p.slug !== post.slug)
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+  .slice(0, 3)
+
+// JSON-LD Article schema
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: post.data.title,
+  description: post.data.description,
+  image: post.data.coverImage,
+  datePublished: post.data.publishedAt.toISOString(),
+  dateModified: (post.data.updatedAt || post.data.publishedAt).toISOString(),
+  author: {
+    "@type": "Person",
+    name: authorDisplayName,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "TraceRoute X",
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteUrl}favicon.svg`,
+    },
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": postUrl,
+  },
+}
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+    { "@type": "ListItem", position: 2, name: "Blog", item: `${siteUrl}blog` },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: post.data.category,
+      item: `${siteUrl}blog/category/${post.data.category.toLowerCase().replace(/\s+/g, "-")}`,
+    },
+    { "@type": "ListItem", position: 4, name: post.data.title, item: postUrl },
+  ],
+}
+
+// Table of contents from headings
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3)
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.coverImage}
+  type="article"
+  publishedAt={post.data.publishedAt.toISOString()}
+  updatedAt={post.data.updatedAt?.toISOString()}
+  author={authorDisplayName}
+>
+  <Header />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+
+  <article class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-1.5 text-xs sm:text-sm text-[var(--text-tertiary)] mb-6 sm:mb-8 overflow-x-auto whitespace-nowrap pb-1" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[var(--text-primary)] transition-colors shrink-0">Home</a>
+      <span>/</span>
+      <a href="/blog" class="hover:text-[var(--text-primary)] transition-colors shrink-0">Blog</a>
+      <span>/</span>
+      <a
+        href={`/blog/category/${post.data.category.toLowerCase().replace(/\s+/g, "-")}`}
+        class="hover:text-[var(--text-primary)] transition-colors shrink-0"
+      >
+        {post.data.category}
+      </a>
+      <span>/</span>
+      <span class="text-[var(--text-secondary)] truncate max-w-[150px] sm:max-w-[200px]">{post.data.title}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-10">
+      <!-- Main content -->
+      <div>
+        <!-- Header -->
+        <header class="mb-6 sm:mb-8">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
+            <a
+              href={`/blog/category/${post.data.category.toLowerCase().replace(/\s+/g, "-")}`}
+              class="px-3 py-1 rounded-full bg-[var(--color-brand-100)] text-[var(--color-brand-700)] text-sm font-medium hover:bg-[var(--color-brand-200)] transition-colors"
+            >
+              {post.data.category}
+            </a>
+            <span class="text-sm text-[var(--text-tertiary)]">
+              {post.data.readingTime} min read
+            </span>
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight mb-4">
+            {post.data.title}
+          </h1>
+
+          <p class="text-base sm:text-lg text-[var(--text-secondary)] mb-6">
+            {post.data.description}
+          </p>
+
+          <!-- Author & Date -->
+          <div class="flex flex-wrap items-center gap-3 sm:gap-4 pb-6 border-b border-[var(--border-primary)]">
+            <a href={authorLink} class="flex items-center gap-3 group">
+              <img
+                src={authorAvatar}
+                alt={authorDisplayName}
+                class="h-10 w-10 rounded-full object-cover"
+                width="40"
+                height="40"
+              />
+              <div>
+                <p class="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--text-link)] transition-colors capitalize">
+                  {authorDisplayName}
+                </p>
+                <p class="text-xs text-[var(--text-tertiary)]">
+                  {post.data.publishedAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  {post.data.updatedAt && (
+                    <span> · Updated {post.data.updatedAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                  )}
+                </p>
+              </div>
+            </a>
+          </div>
+        </header>
+
+        <!-- Mobile Table of Contents -->
+        {toc.length > 0 && (
+          <details class="lg:hidden mb-8 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-secondary)] overflow-hidden">
+            <summary class="flex items-center justify-between px-4 py-3 cursor-pointer text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors">
+              <span class="flex items-center gap-2">
+                <svg class="h-4 w-4 text-[var(--text-tertiary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                On This Page
+              </span>
+              <svg class="h-4 w-4 text-[var(--text-tertiary)] transition-transform details-open-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <nav class="px-4 pb-4 space-y-1" aria-label="Table of Contents">
+              {toc.map(heading => (
+                <a
+                  href={`#${heading.slug}`}
+                  class:list={[
+                    "block text-sm transition-colors py-1.5",
+                    heading.depth === 3 ? "pl-4 text-[var(--text-tertiary)]" : "text-[var(--text-secondary)]",
+                    "hover:text-[var(--text-link)]"
+                  ]}
+                >
+                  {heading.text}
+                </a>
+              ))}
+            </nav>
+          </details>
+        )}
+
+        <!-- Cover Image -->
+        <img
+          src={post.data.coverImage}
+          alt={post.data.coverAlt}
+          class="w-full rounded-xl sm:rounded-2xl mb-8 sm:mb-10"
+          width="800"
+          height="450"
+          loading="eager"
+        />
+
+        <!-- MDX Content -->
+        <div class="prose">
+          <Content />
+        </div>
+
+        <!-- Review Summary -->
+        {post.data.review && (
+          <ReviewSummary review={post.data.review} />
+        )}
+
+        <!-- Tags -->
+        <div class="mt-10 pt-6 border-t border-[var(--border-primary)]">
+          <div class="flex flex-wrap gap-2">
+            {post.data.tags.map((tag: string) => (
+              <a
+                href={`/blog/tag/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                class="px-3 py-1 rounded-full bg-[var(--bg-tertiary)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-primary)] transition-colors"
+              >
+                #{tag}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Share & Like -->
+        <div class="mt-6 flex items-center justify-between">
+          <ShareButtons client:visible url={postUrl} title={post.data.title} description={post.data.description} />
+          <LikeButton client:visible postSlug={post.slug} apiBase={apiBase} />
+        </div>
+
+        <!-- Comments -->
+        <div class="mt-12 pt-8 border-t border-[var(--border-primary)]">
+          <CommentSection client:visible postSlug={post.slug} apiBase={apiBase} />
+        </div>
+
+        <!-- Related Posts -->
+        {relatedPosts.length > 0 && (
+          <section class="mt-16 pt-8 border-t border-[var(--border-primary)]">
+            <h2 class="text-xl font-bold text-[var(--text-primary)] mb-6">Related Posts</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {relatedPosts.map(related => (
+                <a
+                  href={`/blog/${related.slug}`}
+                  class="group block rounded-xl border border-[var(--border-primary)] overflow-hidden bg-[var(--bg-elevated)] hover:shadow-md transition-all"
+                >
+                  <div class="aspect-[16/9] overflow-hidden">
+                    <img
+                      src={related.data.coverImage}
+                      alt={related.data.coverAlt}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      width="300"
+                      height="169"
+                    />
+                  </div>
+                  <div class="p-4">
+                    <h3 class="text-sm font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-link)] transition-colors line-clamp-2">
+                      {related.data.title}
+                    </h3>
+                    <p class="text-xs text-[var(--text-tertiary)] mt-1">
+                      {related.data.readingTime} min read
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      <!-- Sidebar: Table of Contents -->
+      <aside class="hidden lg:block">
+        <div class="sticky top-24">
+          {toc.length > 0 && (
+            <nav class="space-y-1" aria-label="Table of Contents">
+              <h3 class="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide mb-3">
+                On This Page
+              </h3>
+              {toc.map(heading => (
+                <a
+                  href={`#${heading.slug}`}
+                  class:list={[
+                    "block text-sm transition-colors py-1",
+                    heading.depth === 3 ? "pl-4 text-[var(--text-tertiary)]" : "text-[var(--text-secondary)]",
+                    "hover:text-[var(--text-link)]"
+                  ]}
+                >
+                  {heading.text}
+                </a>
+              ))}
+            </nav>
+          )}
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <Footer />
+</BaseLayout>
