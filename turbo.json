@@ -19,6 +19,9 @@
     "UPSTASH_REDIS_REST_TOKEN"
   ],
   "tasks": {
+    "@traceroutex/db#build": {
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
