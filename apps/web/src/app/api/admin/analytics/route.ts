@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const dailyViews = await prisma.pageView.groupBy({
       by: ["postSlug"],
       _count: { id: true },
-      where: { visitedAt: { gte: since } },
+      where: { createdAt: { gte: since } },
       orderBy: { _count: { id: "desc" } },
       take: 10,
     })
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     const referrers = await prisma.pageView.groupBy({
       by: ["referrer"],
       _count: { id: true },
-      where: { visitedAt: { gte: since }, referrer: { not: null } },
+      where: { createdAt: { gte: since }, referrer: { not: null } },
       orderBy: { _count: { id: "desc" } },
       take: 10,
     })
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     const countries = await prisma.pageView.groupBy({
       by: ["country"],
       _count: { id: true },
-      where: { visitedAt: { gte: since }, country: { not: null } },
+      where: { createdAt: { gte: since }, country: { not: null } },
       orderBy: { _count: { id: "desc" } },
       take: 10,
     })
@@ -47,11 +47,11 @@ export async function GET(req: NextRequest) {
     // Totals
     const [totalViews, totalUniqueVisitors, totalLikes, totalComments] =
       await Promise.all([
-        prisma.pageView.count({ where: { visitedAt: { gte: since } } }),
+        prisma.pageView.count({ where: { createdAt: { gte: since } } }),
         prisma.pageView
           .groupBy({
             by: ["visitorId"],
-            where: { visitedAt: { gte: since } },
+            where: { createdAt: { gte: since } },
           })
           .then((r) => r.length),
         prisma.like.count({ where: { createdAt: { gte: since } } }),

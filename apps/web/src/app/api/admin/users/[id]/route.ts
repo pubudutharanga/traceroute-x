@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth"
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -17,7 +17,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const { id } = params
+    const { id } = await params
     
     if (session.user.id === id) {
       return NextResponse.json({ error: "Cannot delete yourself" }, { status: 400 })

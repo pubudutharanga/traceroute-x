@@ -13,6 +13,7 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@traceroutex/db"
 import type { Role } from "@traceroutex/db"
 
+// @ts-ignore: Known NextAuth export portability issue in pnpm monorepos
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google,
