@@ -33,7 +33,8 @@ const dynamicSlug = dbAuthor?.slug || post.data.author.toLowerCase().replace(/\s
 const authorAvatar = `/author/${dynamicSlug}.jpg`
 const authorLink = `/author/${dynamicSlug}`
 
-const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:3000"
+const isProd = import.meta.env.PROD;
+const apiBase = import.meta.env.PUBLIC_API_URL || (isProd ? "https://trace-route-x-web.vercel.app" : "http://localhost:3000")
 const siteUrl = Astro.site?.toString() || "https://traceroutex.com"
 const postUrl = `${siteUrl}blog/${post.slug}`
 

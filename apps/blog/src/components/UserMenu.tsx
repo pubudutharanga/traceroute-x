@@ -6,9 +6,10 @@ export default function UserMenu({ isMobile = false }: { isMobile?: boolean }) {
 
   // Use a fallback for environments where import.meta.env might fail in specific bundlers, 
   // though Astro handles it natively.
+  const isProd = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PROD;
   const apiUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PUBLIC_API_URL) 
     ? import.meta.env.PUBLIC_API_URL 
-    : 'http://localhost:3000';
+    : (isProd ? 'https://trace-route-x-web.vercel.app' : 'http://localhost:3000');
 
   useEffect(() => {
     async function fetchSession() {
