@@ -1,3 +1,5 @@
+import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin"
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable React strict mode for catching bugs early
@@ -8,6 +10,13 @@ const nextConfig = {
 
   // Transpile workspace packages
   transpilePackages: ["@traceroutex/ui", "@traceroutex/db"],
+
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins = [...config.plugins, new PrismaPlugin()]
+    }
+    return config
+  },
 
   // Image optimization domains
   images: {
