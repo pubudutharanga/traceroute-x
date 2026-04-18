@@ -1,0 +1,47 @@
+---
+interface Props {
+  title?: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+}
+
+const { 
+  title, 
+  beforeLabel = "Old Way / Slow", 
+  afterLabel = "New Way / Fast" 
+} = Astro.props;
+---
+
+<div class="my-10 animate-fade-in group">
+  {title && (
+    <div class="flex items-center gap-3 mb-4">
+      <div class="h-6 w-1 bg-[var(--color-brand-500)] rounded-full"></div>
+      <h4 class="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+        {title}
+      </h4>
+    </div>
+  )}
+
+  <div class="flex flex-col gap-8">
+    <div class="relative group/comparison">
+      <div class="absolute -top-3 left-4 px-3 py-1 bg-[var(--surface-error)] text-[var(--text-error)] text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-[var(--text-error)] z-10 shadow-sm group-hover/comparison:-translate-y-0.5 transition-transform">
+        {beforeLabel}
+      </div>
+      <div class="[&>pre]:!mt-0 [&>pre]:!mb-0 [&>pre]:border-[var(--text-error)] [&>pre]:border-opacity-30 border-2 border-transparent hover:border-[var(--text-error)] hover:border-opacity-20 rounded-xl transition-all duration-300">
+        <slot name="before" />
+        <slot />
+      </div>
+    </div>
+
+    {Astro.slots.has('after') && (
+      <div class="relative group/comparison">
+        <div class="absolute -top-3 left-4 px-3 py-1 bg-[var(--surface-success)] text-[var(--text-success)] text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-[var(--text-success)] z-10 shadow-sm group-hover/comparison:-translate-y-0.5 transition-transform">
+          {afterLabel}
+        </div>
+        <div class="[&>pre]:!mt-0 [&>pre]:!mb-0 [&>pre]:border-[var(--text-success)] [&>pre]:border-opacity-30 border-2 border-transparent hover:border-[var(--text-success)] hover:border-opacity-20 rounded-xl transition-all duration-300">
+          <slot name="after" />
+        </div>
+      </div>
+    )}
+  </div>
+</div>

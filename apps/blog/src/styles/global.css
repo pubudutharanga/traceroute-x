@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "../../../../packages/config/tailwind/theme.css";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ---- Base ---- */
 body {
   font-family: var(--font-sans);

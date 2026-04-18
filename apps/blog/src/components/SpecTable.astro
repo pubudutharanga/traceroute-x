@@ -1,0 +1,25 @@
+---
+interface Props {
+  specs: {
+    name: string;
+    value: string;
+  }[];
+}
+
+const { specs = [] } = Astro.props;
+---
+
+<div class="my-8 rounded-xl border border-[var(--border-primary)] overflow-hidden shadow-sm animate-fade-in bg-[var(--bg-elevated)]">
+  <dl class="divide-y divide-[var(--border-primary)] m-0">
+    {specs.map((spec, idx) => (
+      <div class={`grid grid-cols-1 md:grid-cols-3 gap-4 px-6 py-4 ${idx % 2 === 0 ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}`}>
+        <dt class="font-bold text-[var(--text-primary)] text-sm m-0">
+          {spec.name}
+        </dt>
+        <dd class="md:col-span-2 text-[var(--text-secondary)] text-sm leading-relaxed m-0">
+          {spec.value}
+        </dd>
+      </div>
+    ))}
+  </dl>
+</div>

@@ -35,8 +35,9 @@ const authorLink = `/author/${dynamicSlug}`
 
 const isProd = import.meta.env.PROD;
 const apiBase = import.meta.env.PUBLIC_API_URL || (isProd ? "https://trace-route-x-web.vercel.app" : "http://localhost:3000")
-const siteUrl = Astro.site?.toString() || "https://traceroutex.com"
-const postUrl = `${siteUrl}blog/${post.slug}`
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
+const postUrl = `${siteUrl}/blog/${post.slug}`
+const estimatedWordCount = post.data.readingTime * 200
 
 // Get related posts (same category)
 const allPosts = await getCollection("posts", ({ data }) => !data.draft)
@@ -45,25 +46,29 @@ const relatedPosts = allPosts
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
   .slice(0, 3)
 
-// JSON-LD Article schema
+// JSON-LD BlogPosting schema (upgraded from Article for blog-specific rich results)
 const articleJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Article",
+  "@type": "BlogPosting",
   headline: post.data.title,
   description: post.data.description,
-  image: post.data.coverImage,
+  image: post.data.coverImage.startsWith('http') ? post.data.coverImage : `${siteUrl}${post.data.coverImage}`,
+  url: postUrl,
   datePublished: post.data.publishedAt.toISOString(),
   dateModified: (post.data.updatedAt || post.data.publishedAt).toISOString(),
+  wordCount: estimatedWordCount,
+  ...(post.data.keywords && { keywords: post.data.keywords.join(', ') }),
   author: {
     "@type": "Person",
     name: authorDisplayName,
+    url: `${siteUrl}/author/${dynamicSlug}`,
   },
   publisher: {
     "@type": "Organization",
     name: "TraceRoute X",
     logo: {
       "@type": "ImageObject",
-      url: `${siteUrl}favicon.svg`,
+      url: `${siteUrl}/logo.png`,
     },
   },
   mainEntityOfPage: {
@@ -71,6 +76,42 @@ const articleJsonLd = {
     "@id": postUrl,
   },
 }
+
+// Review + Rating JSON-LD (enables star rating rich snippets in Google)
+const reviewJsonLd = post.data.review ? {
+  "@context": "https://schema.org",
+  "@type": "Review",
+  itemReviewed: {
+    "@type": "Product",
+    name: post.data.title.split(':')[0].trim(),
+    ...(post.data.review.price && { offers: { "@type": "Offer", price: post.data.review.price.replace(/[^0-9.]/g, ''), priceCurrency: "USD" } }),
+  },
+  reviewRating: {
+    "@type": "Rating",
+    ratingValue: post.data.review.rating,
+    bestRating: 5,
+    worstRating: 1,
+  },
+  name: post.data.title,
+  author: { "@type": "Person", name: authorDisplayName },
+  publisher: { "@type": "Organization", name: "TraceRoute X" },
+  reviewBody: post.data.review.verdict,
+  datePublished: post.data.publishedAt.toISOString(),
+} : null
+
+// FAQPage JSON-LD (enables FAQ rich results in Google)
+const faqJsonLd = post.data.faq?.length ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: post.data.faq.map((item: { question: string; answer: string }) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+} : null
 
 const breadcrumbJsonLd = {
   "@context": "https://schema.org",
@@ -106,6 +147,8 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3)
   <!-- JSON-LD -->
   <script type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+  {reviewJsonLd && <script type="application/ld+json" set:html={JSON.stringify(reviewJsonLd)} />}
+  {faqJsonLd && <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />}
 
   <article class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
     <!-- Breadcrumbs -->

@@ -1,0 +1,52 @@
+---
+interface Props {
+  pros?: string[];
+  cons?: string[];
+  title?: string;
+}
+
+const { pros = [], cons = [], title } = Astro.props;
+---
+
+<div class="my-8 p-6 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-elevated)] shadow-md animate-fade-in">
+  {title && (
+    <h4 class="font-bold text-lg mb-6 text-[var(--text-primary)] tracking-tight">{title}</h4>
+  )}
+  <div class="grid sm:grid-cols-2 gap-8">
+    <!-- Pros -->
+    {pros.length > 0 && (
+      <div>
+        <h5 class="flex items-center gap-2 font-bold text-[var(--text-success)] text-sm uppercase tracking-widest mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Good
+        </h5>
+        <ul class="space-y-3 m-0 pl-0 list-none">
+          {pros.map((pro) => (
+            <li class="flex items-start gap-3 text-sm text-[var(--text-secondary)] leading-snug m-0 p-0 before:hidden">
+              <span class="block w-1.5 h-1.5 rounded-full bg-[var(--text-success)] mt-1.5 flex-shrink-0 opacity-80" />
+              {pro}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <!-- Cons -->
+    {cons.length > 0 && (
+      <div>
+        <h5 class="flex items-center gap-2 font-bold text-[var(--text-error)] text-sm uppercase tracking-widest mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          Bad
+        </h5>
+        <ul class="space-y-3 m-0 pl-0 list-none">
+          {cons.map((con) => (
+            <li class="flex items-start gap-3 text-sm text-[var(--text-secondary)] leading-snug m-0 p-0 before:hidden">
+              <span class="block w-1.5 h-1.5 rounded-full bg-[var(--text-error)] mt-1.5 flex-shrink-0 opacity-80" />
+              {con}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</div>

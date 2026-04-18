@@ -16,15 +16,17 @@ const latestPost = sortedPosts[0]
 const categories = [...new Set(allPosts.map((p) => p.data.category))]
 const totalReadingTime = allPosts.reduce((sum, p) => sum + p.data.readingTime, 0)
 
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "TraceRoute X",
-  url: "https://traceroutex.com",
+  url: siteUrl,
   description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
   potentialAction: {
     "@type": "SearchAction",
-    target: "https://traceroutex.com/search?q={search_term_string}",
+    target: `${siteUrl}/search?q={search_term_string}`,
     "query-input": "required name=search_term_string",
   },
 }

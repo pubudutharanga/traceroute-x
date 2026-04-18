@@ -1,0 +1,93 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+
+const lastUpdated = "April 18, 2026"
+---
+
+<BaseLayout
+  title="Terms of Service"
+  description="Terms of Service for TraceRoute X — the rules and guidelines for using our website."
+>
+  <Header />
+
+  <main class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+    <nav class="text-sm text-[var(--text-tertiary)] mb-8" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[var(--text-primary)] transition-colors">Home</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-[var(--text-secondary)]">Terms of Service</span>
+    </nav>
+
+    <h1 class="text-3xl font-extrabold text-[var(--text-primary)] tracking-tight mb-2">Terms of Service</h1>
+    <p class="text-sm text-[var(--text-tertiary)] mb-10">Last updated: {lastUpdated}</p>
+
+    <div class="prose">
+      <h2>Acceptance of Terms</h2>
+      <p>
+        By accessing and using TraceRoute X (<strong>traceroutex.vercel.app</strong>), you agree to be bound by these Terms of Service. If you do not agree, please refrain from using the website.
+      </p>
+
+      <h2>Use of Content</h2>
+      <p>
+        All articles, reviews, images, and other content published on TraceRoute X are the intellectual property of TraceRoute X and its authors unless otherwise noted. You may:
+      </p>
+      <ul>
+        <li>Read, share, and link to our content for personal and non-commercial purposes</li>
+        <li>Quote brief excerpts with proper attribution and a link back to the original article</li>
+      </ul>
+      <p>You may not:</p>
+      <ul>
+        <li>Reproduce, republish, or redistribute full articles without written permission</li>
+        <li>Use our content for commercial purposes without prior authorization</li>
+        <li>Remove or alter attribution, copyright notices, or links</li>
+      </ul>
+
+      <h2>User Accounts and Comments</h2>
+      <p>
+        If you create an account or leave comments, you agree to:
+      </p>
+      <ul>
+        <li>Provide accurate and current information</li>
+        <li>Be responsible for all activity under your account</li>
+        <li>Not post content that is defamatory, abusive, harassing, or illegal</li>
+        <li>Not spam, advertise, or post irrelevant promotional content</li>
+      </ul>
+      <p>
+        We reserve the right to remove any comment or suspend any account that violates these terms.
+      </p>
+
+      <h2>Reviews and Opinions</h2>
+      <p>
+        Product reviews and ratings on TraceRoute X represent the honest opinions of our writers based on real-world testing. Ratings are subjective assessments and should be considered alongside your own research. We are not responsible for purchasing decisions made based on our reviews.
+      </p>
+
+      <h2>Affiliate Links and Sponsorship</h2>
+      <p>
+        Some links on TraceRoute X may be affiliate links. If you purchase a product through an affiliate link, we may earn a small commission at no additional cost to you. Affiliate relationships do not influence our editorial content or review scores.
+      </p>
+
+      <h2>Disclaimer of Warranties</h2>
+      <p>
+        TraceRoute X is provided "as is" without warranties of any kind, express or implied. We do not guarantee that the website will be error-free, uninterrupted, or free of harmful components.
+      </p>
+
+      <h2>Limitation of Liability</h2>
+      <p>
+        TraceRoute X and its authors shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the website or reliance on its content.
+      </p>
+
+      <h2>Changes to These Terms</h2>
+      <p>
+        We may modify these Terms of Service at any time. Continued use of the website after changes constitutes acceptance of the modified terms.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about these terms can be directed through our <a href="https://github.com/pubudutharanga" target="_blank" rel="noopener noreferrer">GitHub profile</a>.
+      </p>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>

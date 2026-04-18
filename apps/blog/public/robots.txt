@@ -3,5 +3,9 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /profile/settings
+Disallow: /search
 
-Sitemap: https://traceroutex.com/sitemap-index.xml
+# Crawl-delay for responsible crawling
+Crawl-delay: 1
+
+Sitemap: https://traceroutex.vercel.app/sitemap-index.xml

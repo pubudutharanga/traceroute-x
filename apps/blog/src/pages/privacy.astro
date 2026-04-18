@@ -1,0 +1,107 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+
+const lastUpdated = "April 18, 2026"
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="Privacy Policy for TraceRoute X — learn how we collect, use, and protect your personal information."
+>
+  <Header />
+
+  <main class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+    <nav class="text-sm text-[var(--text-tertiary)] mb-8" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[var(--text-primary)] transition-colors">Home</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-[var(--text-secondary)]">Privacy Policy</span>
+    </nav>
+
+    <h1 class="text-3xl font-extrabold text-[var(--text-primary)] tracking-tight mb-2">Privacy Policy</h1>
+    <p class="text-sm text-[var(--text-tertiary)] mb-10">Last updated: {lastUpdated}</p>
+
+    <div class="prose">
+      <h2>Introduction</h2>
+      <p>
+        TraceRoute X ("we," "our," or "us") operates the website at <strong>traceroutex.vercel.app</strong>. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website.
+      </p>
+
+      <h2>Information We Collect</h2>
+      <h3>Analytics Data</h3>
+      <p>
+        We use <strong>Google Analytics 4 (GA4)</strong> to understand how visitors interact with our site. GA4 collects anonymized data including:
+      </p>
+      <ul>
+        <li>Pages visited and time spent on each page</li>
+        <li>Device type, browser, and operating system</li>
+        <li>Approximate geographic location (country/region level)</li>
+        <li>Referral source (how you found us)</li>
+      </ul>
+      <p>
+        This data is aggregated and does not personally identify individual users. Google's privacy policy governs how Google processes analytics data: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.
+      </p>
+
+      <h3>Authentication Data</h3>
+      <p>
+        If you choose to sign in using Google OAuth, we collect your name, email address, and profile picture to provide personalized features such as commenting and liking posts. This data is stored securely and never shared with third parties.
+      </p>
+
+      <h3>Comments and User Content</h3>
+      <p>
+        When you leave comments on blog posts, we store the comment content, your display name, and the timestamp. Comments are publicly visible on the site.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>
+        We use the following cookies:
+      </p>
+      <ul>
+        <li><strong>Theme preference</strong> — Stores your light/dark mode preference locally (localStorage)</li>
+        <li><strong>Google Analytics cookies</strong> — Used to distinguish unique users and sessions (<code>_ga</code>, <code>_ga_*</code>)</li>
+        <li><strong>Authentication session</strong> — If you sign in, a secure session cookie maintains your login state</li>
+      </ul>
+
+      <h2>How We Use Your Information</h2>
+      <ul>
+        <li>To analyze and improve site content and user experience</li>
+        <li>To provide authentication and personalized features</li>
+        <li>To display user-generated comments on posts</li>
+        <li>To understand audience demographics for content planning</li>
+      </ul>
+
+      <h2>Data Sharing</h2>
+      <p>
+        We do not sell, trade, or rent your personal information. We may share anonymized, aggregated analytics data for business purposes. Google Analytics data is processed by Google under their data processing terms.
+      </p>
+
+      <h2>Data Retention</h2>
+      <p>
+        Analytics data is retained for 14 months. Account data is retained as long as your account exists. You may request deletion of your data at any time by contacting us.
+      </p>
+
+      <h2>Your Rights</h2>
+      <p>
+        Depending on your location, you may have rights to access, correct, delete, or port your personal data. To exercise these rights, contact us through the methods described below.
+      </p>
+
+      <h2>Children's Privacy</h2>
+      <p>
+        TraceRoute X is not directed at children under 13. We do not knowingly collect personal information from children under 13.
+      </p>
+
+      <h2>Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date.
+      </p>
+
+      <h2>Contact Us</h2>
+      <p>
+        If you have questions about this Privacy Policy, you can reach us through our <a href="https://github.com/pubudutharanga" target="_blank" rel="noopener noreferrer">GitHub profile</a>.
+      </p>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>

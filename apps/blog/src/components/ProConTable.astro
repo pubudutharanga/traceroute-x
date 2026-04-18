@@ -1,0 +1,44 @@
+---
+interface Props {
+  pros?: string[];
+  cons?: string[];
+}
+
+const { pros = [], cons = [] } = Astro.props;
+---
+
+<div class="my-10 overflow-hidden rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-elevated)] shadow-lg animate-fade-in">
+  <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[var(--border-primary)]">
+    <!-- Pros -->
+    <div class="p-6 md:p-8">
+      <h4 class="text-[var(--text-success)] font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-wider">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        The Pros
+      </h4>
+      <ul class="space-y-4">
+        {pros.map((item) => (
+          <li class="flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--text-success)] mt-1 flex-shrink-0 opacity-80"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="text-[var(--text-secondary)] leading-relaxed">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Cons -->
+    <div class="p-6 md:p-8 bg-[var(--bg-secondary)] md:bg-transparent">
+      <h4 class="text-[var(--text-error)] font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-wider">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+        The Cons
+      </h4>
+      <ul class="space-y-4">
+        {cons.map((item) => (
+          <li class="flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--text-error)] mt-1 flex-shrink-0 opacity-80"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            <span class="text-[var(--text-secondary)] leading-relaxed">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</div>

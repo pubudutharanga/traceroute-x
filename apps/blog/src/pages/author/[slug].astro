@@ -46,11 +46,20 @@ export async function getStaticPaths() {
 
 const { authorName, authorBio, authorAvatar, authorSlug, posts } = Astro.props
 
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
+
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: authorName,
-  url: `https://traceroutex.com/author/${authorSlug}`,
+  url: `${siteUrl}/author/${authorSlug}`,
+  description: authorBio,
+  jobTitle: "Tech Writer & Developer",
+  worksFor: {
+    "@type": "Organization",
+    name: "TraceRoute X",
+    url: siteUrl,
+  },
 }
 ---
 

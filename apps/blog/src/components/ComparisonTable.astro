@@ -1,0 +1,37 @@
+---
+interface Props {
+  headers: string[];
+  rows: string[][];
+}
+
+const { headers = [], rows = [] } = Astro.props;
+---
+
+<div class="my-10 overflow-x-auto rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-elevated)] shadow-lg animate-fade-in">
+  <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
+    <thead class="bg-[var(--bg-tertiary)] border-b border-[var(--border-primary)]">
+      <tr>
+        {headers.map((header) => (
+          <th class="py-4 px-6 font-bold text-[var(--text-primary)] tracking-wide uppercase text-xs sticky top-0">
+            {header}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-[var(--border-primary)]">
+      {rows.map((row) => (
+        <tr class="hover:bg-[var(--bg-secondary)] transition-colors group/tr">
+          {row.map((cell, idx) => (
+            <td class={`py-4 px-6 text-[var(--text-secondary)] ${
+              idx === 0 
+                ? 'font-bold text-[var(--text-primary)] md:sticky md:left-0 md:bg-[var(--bg-elevated)] group-hover/tr:bg-[var(--bg-secondary)] border-r border-[var(--border-primary)] xl:border-r-0 xl:static bg-[var(--bg-elevated)] sticky left-0 z-10'
+                : ''
+            }`}>
+              {cell}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

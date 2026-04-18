@@ -27,6 +27,13 @@ const posts = defineCollection({
       verdict: z.string(),
       price: z.string().optional(),
     }).optional(),
+    // SEO: FAQ structured data for rich results
+    faq: z.array(z.object({
+      question: z.string(),
+      answer: z.string(),
+    })).optional(),
+    // SEO: Target keywords for meta tag
+    keywords: z.array(z.string()).optional(),
   }),
 })
 

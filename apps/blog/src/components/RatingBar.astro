@@ -1,0 +1,23 @@
+---
+interface Props {
+  label: string;
+  value: number;
+  max?: number;
+}
+
+const { label, value, max = 5 } = Astro.props;
+const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+---
+
+<div class="my-4 animate-fade-in group">
+  <div class="flex justify-between items-end mb-2">
+    <span class="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{label}</span>
+    <span class="text-sm font-bold text-[var(--color-brand-600)] tabular-nums">{value.toFixed(1)} <span class="text-[var(--text-tertiary)] text-xs font-medium">/ {max}</span></span>
+  </div>
+  <div class="h-2 w-full bg-[var(--bg-tertiary)] rounded-full overflow-hidden border border-[var(--border-primary)] shadow-inner">
+    <div 
+      class="h-full bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] rounded-full transition-all duration-1000 ease-out group-hover:opacity-90"
+      style={`width: ${percentage}%`}
+    ></div>
+  </div>
+</div>

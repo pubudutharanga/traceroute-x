@@ -1,0 +1,22 @@
+{
+  "name": "TraceRoute X — Navigate the Tech Landscape",
+  "short_name": "TraceRouteX",
+  "description": "A technology blog exploring technical news, gadget reviews, software development, and AI breakthroughs.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4f46e5",
+  "background_color": "#0a0a0f",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

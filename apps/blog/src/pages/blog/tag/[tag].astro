@@ -20,10 +20,28 @@ export async function getStaticPaths() {
 }
 
 const { tag, posts } = Astro.props
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
+const tagSlug = tag.toLowerCase().replace(/\s+/g, "-")
+const tagUrl = `${siteUrl}/blog/tag/${tagSlug}`
+
+// noindex tags with only 1 post to prevent thin content indexing
+const isThinTag = posts.length <= 1
+
+const collectionJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `#${tag} Articles`,
+  description: `Browse all articles tagged with ${tag} on TraceRoute X.`,
+  url: tagUrl,
+  isPartOf: { "@type": "WebSite", name: "TraceRoute X", url: siteUrl },
+  numberOfItems: posts.length,
+}
 ---
 
-<BaseLayout title={`#${tag} Articles`} description={`Browse all articles tagged with ${tag} on TraceRoute X.`}>
+<BaseLayout title={`#${tag} Articles`} description={`Browse all articles tagged with ${tag} on TraceRoute X — in-depth coverage for developers and tech enthusiasts.`} noIndex={isThinTag}>
   <Header />
+
+  {!isThinTag && <script type="application/ld+json" set:html={JSON.stringify(collectionJsonLd)} />}
 
   <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-10">

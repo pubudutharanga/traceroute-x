@@ -4,8 +4,9 @@ import react from "@astrojs/react"
 import sitemap from "@astrojs/sitemap"
 
 export default defineConfig({
-  site: "https://traceroutex.com",
+  site: "https://traceroutex.vercel.app",
   output: "static",
+  compressHTML: true,
 
   integrations: [
     mdx({
@@ -15,7 +16,12 @@ export default defineConfig({
       },
     }),
     react(),
-    sitemap(),
+    sitemap({
+      i18n: {
+        defaultLocale: "en",
+        locales: { en: "en-US" },
+      },
+    }),
   ],
 
   vite: {
@@ -30,3 +36,5 @@ export default defineConfig({
     },
   },
 })
+
+// Trigger Astro restart

@@ -15,7 +15,7 @@ interface Props {
 const {
   title,
   description = "TraceRoute X — A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
-  image = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=630&fit=crop",
+  image = "/google-antigravity-ide.webp",
   type = "website",
   publishedAt,
   updatedAt,
@@ -24,9 +24,23 @@ const {
 } = Astro.props
 
 const siteName = "TraceRoute X"
-const siteUrl = Astro.site?.toString() || "https://traceroutex.com"
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
 const fullTitle = title === siteName ? title : `${title} | ${siteName}`
+const ogImageUrl = image.startsWith("http") ? image : `${siteUrl}${image.startsWith("/") ? "" : "/"}${image}`
+
+// Organization schema — emitted on every page for entity recognition
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteName,
+  url: siteUrl,
+  logo: `${siteUrl}/logo.png`,
+  description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
+  sameAs: [
+    "https://github.com/pubudutharanga",
+  ],
+}
 ---
 
 <!doctype html>
@@ -42,13 +56,23 @@ const fullTitle = title === siteName ? title : `${title} | ${siteName}`
     <!-- Canonical -->
     <link rel="canonical" href={canonicalUrl} />
 
+    <!-- Language & Geo Targeting (US) -->
+    <link rel="alternate" hreflang="en-US" href={canonicalUrl} />
+    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+    <meta name="geo.region" content="US" />
+    <meta name="geo.placename" content="United States" />
+    <meta name="content-language" content="en-US" />
+
     <!-- Robots -->
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="-V0RKnDbdKZRh-fAsPHmz3mZXuzZtEjYbXh0m-s5NOk" />
 
     <!-- Open Graph -->
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={image} />
+    <meta property="og:image" content={ogImageUrl} />
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content={siteName} />
@@ -58,21 +82,42 @@ const fullTitle = title === siteName ? title : `${title} | ${siteName}`
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- Article-specific meta -->
     {publishedAt && <meta property="article:published_time" content={publishedAt} />}
     {updatedAt && <meta property="article:modified_time" content={updatedAt} />}
     {author && <meta property="article:author" content={author} />}
 
-    <!-- Favicon & RSS -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Favicon, Icons & Manifest -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4f46e5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1e1b4b" media="(prefers-color-scheme: dark)" />
+
+    <!-- RSS -->
     <link rel="alternate" type="application/rss+xml" title={siteName} href={`${new URL("rss.xml", siteUrl)}`} />
 
-    <!-- Font preload -->
+    <!-- Font preload with display=swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Organization JSON-LD (every page) -->
+    <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y0H8BEG5XV"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Y0H8BEG5XV');
+    </script>
 
     <!-- Theme init (prevent FOUC) -->
     <script is:inline>

@@ -1,0 +1,153 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Header from "@/components/Header.astro"
+import Footer from "@/components/Footer.astro"
+import { getCollection } from "astro:content"
+
+const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+const categories = [...new Set(allPosts.map((p) => p.data.category))]
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
+
+const aboutJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "About TraceRoute X",
+  url: `${siteUrl}/about`,
+  mainEntity: {
+    "@type": "Organization",
+    name: "TraceRoute X",
+    url: siteUrl,
+    logo: `${siteUrl}/logo.png`,
+    description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs — built for the US developer and tech enthusiast community.",
+    founder: {
+      "@type": "Person",
+      name: "Pubudu Tharanga",
+      url: `${siteUrl}/author/pubudu-tharanga`,
+      jobTitle: "Full-Stack Developer & Tech Writer",
+      knowsAbout: ["Web Development", "AI Tools", "Developer Productivity", "Consumer Electronics"],
+    },
+  },
+}
+---
+
+<BaseLayout
+  title="About"
+  description="TraceRoute X is a technology blog delivering in-depth gadget reviews, software development insights, AI breakthroughs, and developer productivity guides for the US tech community."
+>
+  <Header />
+
+  <script type="application/ld+json" set:html={JSON.stringify(aboutJsonLd)} />
+
+  <main class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-[var(--text-tertiary)] mb-8" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[var(--text-primary)] transition-colors">Home</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-[var(--text-secondary)]">About</span>
+    </nav>
+
+    <!-- Hero -->
+    <div class="mb-12">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight mb-4">
+        About <span class="hero-gradient-text">TraceRoute X</span>
+      </h1>
+      <p class="text-lg text-[var(--text-secondary)] leading-relaxed max-w-2xl">
+        We trace the routes that technology takes — from silicon to screen, from code to deployment, from announcement to your hands.
+      </p>
+    </div>
+
+    <!-- Mission -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-[var(--text-primary)] mb-4">Our Mission</h2>
+      <div class="prose">
+        <p>
+          TraceRoute X exists because the technology industry moves fast — and most coverage either drowns in hype or skims the surface. We write the articles we wish existed: <strong>honest, technically grounded, and written for people who actually build and use technology</strong>.
+        </p>
+        <p>
+          Whether it's a deep-dive review of the latest headphones, an analysis of where web development is heading, or a practical playbook for developer productivity — every piece on TraceRoute X is written with care, tested with rigor, and designed to save you the time we spent figuring it out.
+        </p>
+      </div>
+    </section>
+
+    <!-- What We Cover -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-[var(--text-primary)] mb-4">What We Cover</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {categories.map((cat) => (
+          <a
+            href={`/blog/category/${cat.toLowerCase().replace(/\s+/g, "-")}`}
+            class="group flex items-center gap-3 p-4 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-elevated)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <div class="h-10 w-10 rounded-lg bg-[var(--color-brand-100)] flex items-center justify-center text-[var(--color-brand-600)] flex-shrink-0">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            </div>
+            <div>
+              <p class="font-semibold text-[var(--text-primary)] group-hover:text-[var(--color-brand-500)] transition-colors">{cat}</p>
+              <p class="text-xs text-[var(--text-tertiary)]">
+                {allPosts.filter((p) => p.data.category === cat).length} articles
+              </p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Author -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-[var(--text-primary)] mb-4">Who Writes This</h2>
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-elevated)]">
+        <img
+          src="/author/pubudu-tharanga.jpg"
+          alt="Pubudu Tharanga"
+          class="h-20 w-20 rounded-full object-cover"
+          width="80"
+          height="80"
+        />
+        <div class="text-center sm:text-left">
+          <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">Pubudu Tharanga</h3>
+          <p class="text-sm text-[var(--color-brand-500)] font-medium mb-3">Full-Stack Developer & Tech Writer</p>
+          <p class="text-sm text-[var(--text-secondary)] leading-relaxed">
+            A software developer and technology enthusiast passionate about modern web technologies, developer experience, and honest gadget criticism. Every review is purchased at retail, every tutorial is tested in production, and every opinion is earned through hands-on experience.
+          </p>
+          <div class="mt-4 flex items-center justify-center sm:justify-start gap-3">
+            <a
+              href="/author/pubudu-tharanga"
+              class="text-sm font-medium text-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] transition-colors"
+            >
+              View all articles →
+            </a>
+            <a
+              href="https://github.com/pubudutharanga"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section>
+      <h2 class="text-xl font-bold text-[var(--text-primary)] mb-4">Get in Touch</h2>
+      <div class="prose">
+        <p>
+          Have a suggestion, correction, or just want to say hello? Reach out through GitHub or leave a comment on any article. We read every message.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero-gradient-text {
+    background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+</style>
