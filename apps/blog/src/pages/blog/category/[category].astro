@@ -44,6 +44,17 @@ const breadcrumbJsonLd = {
     { "@type": "ListItem", position: 3, name: category, item: categoryUrl },
   ],
 }
+
+const itemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: `${category} Articles`,
+  itemListElement: posts.map((post, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    url: `${siteUrl}/blog/${post.slug}`,
+  })),
+}
 ---
 
 <BaseLayout title={`${category} Articles`} description={`Browse all ${category} articles on TraceRoute X — in-depth reviews, guides, and insights for the US tech community.`}>
@@ -51,6 +62,7 @@ const breadcrumbJsonLd = {
 
   <script type="application/ld+json" set:html={JSON.stringify(collectionJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(itemListJsonLd)} />
   <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-10">
       <nav class="text-sm text-[var(--text-tertiary)] mb-4">

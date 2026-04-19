@@ -252,6 +252,8 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3)
           width="800"
           height="450"
           loading="eager"
+          decoding="async"
+          fetchpriority="high"
         />
 
         <!-- MDX Content -->
@@ -305,6 +307,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3)
                       alt={related.data.coverAlt}
                       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      decoding="async"
                       width="300"
                       height="169"
                     />

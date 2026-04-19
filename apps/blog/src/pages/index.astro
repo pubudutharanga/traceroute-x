@@ -30,6 +30,17 @@ const jsonLd = {
     "query-input": "required name=search_term_string",
   },
 }
+
+const itemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Recent Posts",
+  itemListElement: recentPosts.map((post, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    url: `${siteUrl}/blog/${post.slug}`,
+  })),
+}
 ---
 
 <BaseLayout title="TraceRoute X — Navigate the Tech Landscape">
@@ -37,6 +48,7 @@ const jsonLd = {
 
   <!-- JSON-LD -->
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(itemListJsonLd)} />
 
   <main>
     <!-- ===================== HERO ===================== -->
@@ -146,6 +158,8 @@ const jsonLd = {
                       alt={latestPost.data.coverAlt}
                       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       loading="eager"
+                      decoding="async"
+                      fetchpriority="high"
                       width="600"
                       height="338"
                     />

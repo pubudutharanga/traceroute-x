@@ -21,6 +21,8 @@ export default defineConfig({
         defaultLocale: "en",
         locales: { en: "en-US" },
       },
+      changefreq: "weekly",
+      priority: 0.7,
     }),
   ],
 
