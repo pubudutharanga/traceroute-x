@@ -10,6 +10,7 @@ interface Props {
   updatedAt?: string
   author?: string
   noIndex?: boolean
+  keywords?: string[]
 }
 
 const {
@@ -21,6 +22,7 @@ const {
   updatedAt,
   author,
   noIndex = false,
+  keywords,
 } = Astro.props
 
 const siteName = "TraceRoute X"
@@ -29,17 +31,67 @@ const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
 const fullTitle = title === siteName ? title : `${title} | ${siteName}`
 const ogImageUrl = image.startsWith("http") ? image : `${siteUrl}${image.startsWith("/") ? "" : "/"}${image}`
 
-// Organization schema — emitted on every page for entity recognition
+// ── Organization JSON-LD (anchored with @id for entity graph) ──
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": `${siteUrl}/#organization`,
   name: siteName,
   url: siteUrl,
-  logo: `${siteUrl}/logo.png`,
+  logo: {
+    "@type": "ImageObject",
+    "@id": `${siteUrl}/#logo`,
+    url: `${siteUrl}/logo.png`,
+    width: 512,
+    height: 512,
+    caption: siteName,
+  },
+  image: { "@id": `${siteUrl}/#logo` },
   description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
   sameAs: [
     "https://github.com/pubudutharanga",
   ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "editorial",
+    url: `${siteUrl}/about`,
+  },
+  publishingPrinciples: `${siteUrl}/about`,
+}
+
+// ── WebSite JSON-LD (global, with SearchAction for sitelinks search box) ──
+const webSiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${siteUrl}/#website`,
+  name: siteName,
+  url: siteUrl,
+  description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
+  publisher: { "@id": `${siteUrl}/#organization` },
+  inLanguage: "en-US",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteUrl}/search?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+}
+
+// ── WebPage JSON-LD (per-page, links back to WebSite + Organization) ──
+const webPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${canonicalUrl}#webpage`,
+  url: canonicalUrl,
+  name: fullTitle,
+  description: description,
+  isPartOf: { "@id": `${siteUrl}/#website` },
+  about: { "@id": `${siteUrl}/#organization` },
+  inLanguage: "en-US",
+  ...(publishedAt && { datePublished: publishedAt }),
+  ...(updatedAt && { dateModified: updatedAt }),
 }
 ---
 
@@ -48,10 +100,13 @@ const organizationJsonLd = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
 
     <!-- Title & Description -->
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {author && <meta name="author" content={author} />}
+    {keywords?.length && <meta name="keywords" content={keywords.join(', ')} />}
 
     <!-- Canonical -->
     <link rel="canonical" href={canonicalUrl} />
@@ -104,13 +159,30 @@ const organizationJsonLd = {
     <!-- RSS -->
     <link rel="alternate" type="application/rss+xml" title={siteName} href={`${new URL("rss.xml", siteUrl)}`} />
 
-    <!-- Font preload with display=swap -->
+    <!-- Font loading: non-render-blocking with preload + media swap trick -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    </noscript>
 
-    <!-- Organization JSON-LD (every page) -->
+    <!-- JSON-LD: Organization + WebSite + WebPage (every page) -->
     <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(webSiteJsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(webPageJsonLd)} />
 
     <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y0H8BEG5XV"></script>
@@ -139,3 +211,4 @@ const organizationJsonLd = {
     <slot />
   </body>
 </html>
+

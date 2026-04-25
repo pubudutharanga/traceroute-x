@@ -34,6 +34,10 @@ const posts = defineCollection({
     })).optional(),
     // SEO: Target keywords for meta tag
     keywords: z.array(z.string()).optional(),
+    // SEO: Custom meta title (for keyword-optimized title different from display title)
+    metaTitle: z.string().max(70).optional(),
+    // SEO: Custom canonical URL (for cross-posting scenarios)
+    canonical: z.string().url().optional(),
   }),
 })
 

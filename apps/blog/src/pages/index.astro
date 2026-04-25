@@ -18,19 +18,7 @@ const totalReadingTime = allPosts.reduce((sum, p) => sum + p.data.readingTime, 0
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "TraceRoute X",
-  url: siteUrl,
-  description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${siteUrl}/search?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
-  },
-}
-
+// Homepage-specific: ItemList of recent posts for rich results
 const itemListJsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
@@ -39,6 +27,7 @@ const itemListJsonLd = {
     "@type": "ListItem",
     position: index + 1,
     url: `${siteUrl}/blog/${post.slug}`,
+    name: post.data.title,
   })),
 }
 ---
@@ -47,7 +36,6 @@ const itemListJsonLd = {
   <Header />
 
   <!-- JSON-LD -->
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(itemListJsonLd)} />
 
   <main>

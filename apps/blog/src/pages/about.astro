@@ -8,25 +8,56 @@ const allPosts = await getCollection("posts", ({ data }) => !data.draft)
 const categories = [...new Set(allPosts.map((p) => p.data.category))]
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
 
+// Enhanced AboutPage JSON-LD with E-E-A-T signals
 const aboutJsonLd = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
+  "@id": `${siteUrl}/about#aboutpage`,
   name: "About TraceRoute X",
   url: `${siteUrl}/about`,
+  isPartOf: { "@id": `${siteUrl}/#website` },
   mainEntity: {
-    "@type": "Organization",
-    name: "TraceRoute X",
-    url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
-    description: "A technology blog exploring the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs — built for the US developer and tech enthusiast community.",
-    founder: {
-      "@type": "Person",
-      name: "Pubudu Tharanga",
-      url: `${siteUrl}/author/pubudu-tharanga`,
-      jobTitle: "Full-Stack Developer & Tech Writer",
-      knowsAbout: ["Web Development", "AI Tools", "Developer Productivity", "Consumer Electronics"],
-    },
+    "@id": `${siteUrl}/#organization`,
   },
+}
+
+// Enhanced Person schema with E-E-A-T credentials
+const authorJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": `${siteUrl}/author/pubudu-tharanga#person`,
+  name: "Pubudu Tharanga",
+  url: `${siteUrl}/author/pubudu-tharanga`,
+  image: `${siteUrl}/author/pubudu-tharanga.jpg`,
+  jobTitle: "Full-Stack Developer & Tech Writer",
+  knowsAbout: [
+    "Web Development",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Next.js",
+    "Astro",
+    "AI Tools",
+    "Developer Productivity",
+    "Consumer Electronics",
+    "API Development",
+    "Cloud Architecture",
+  ],
+  knowsLanguage: ["en"],
+  sameAs: [
+    "https://github.com/pubudutharanga",
+  ],
+  worksFor: { "@id": `${siteUrl}/#organization` },
+}
+
+// BreadcrumbList for About page
+const aboutBreadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+    { "@type": "ListItem", position: 2, name: "About", item: `${siteUrl}/about` },
+  ],
 }
 ---
 
@@ -37,6 +68,8 @@ const aboutJsonLd = {
   <Header />
 
   <script type="application/ld+json" set:html={JSON.stringify(aboutJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(authorJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(aboutBreadcrumbJsonLd)} />
 
   <main class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
     <!-- Breadcrumb -->

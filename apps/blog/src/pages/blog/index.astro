@@ -12,10 +12,48 @@ const sortedPosts = allPosts.sort(
 const POSTS_PER_PAGE = 12
 const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE)
 const posts = sortedPosts.slice(0, POSTS_PER_PAGE)
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || "https://traceroutex.vercel.app"
+
+// CollectionPage JSON-LD — tells Google this is a curated listing of articles
+const collectionPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": `${siteUrl}/blog#collectionpage`,
+  name: "Blog — TraceRoute X",
+  description: "Explore the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.",
+  url: `${siteUrl}/blog`,
+  isPartOf: { "@id": `${siteUrl}/#website` },
+  about: { "@id": `${siteUrl}/#organization` },
+  inLanguage: "en-US",
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: sortedPosts.length,
+    itemListElement: sortedPosts.slice(0, 10).map((post, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${siteUrl}/blog/${post.slug}`,
+      name: post.data.title,
+    })),
+  },
+}
+
+const blogBreadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+    { "@type": "ListItem", position: 2, name: "Blog", item: `${siteUrl}/blog` },
+  ],
+}
 ---
 
 <BaseLayout title="Blog" description="Explore the latest in technical news, in-depth gadget reviews, software development, and AI breakthroughs.">
   <Header />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(collectionPageJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(blogBreadcrumbJsonLd)} />
 
   <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
     <div class="mb-8 sm:mb-10">
