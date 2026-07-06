@@ -4,17 +4,20 @@ export default function indexNowSubmitter(apiKey: string, siteUrl: string): Astr
   return {
     name: 'indexnow-submitter',
     hooks: {
-      'astro:build:done': async ({ routes, logger }) => {
-        logger.info('Preparing to ping IndexNow + Google...');
+      'astro:build:done': async ({ pages, logger }) => {
+        logger.info('Preparing to submit to IndexNow...');
 
-        // 1. Gather all generated paths
-        const urls = routes
-          .filter(route => route.type === 'page' && route.pathname)
-          .map(route => {
-            const pathName = route.pathname || '';
-            const normalizedPath = pathName.startsWith('/') ? pathName : `/${pathName}`;
-            return `${siteUrl}${normalizedPath}`;
-          });
+        // Gather all generated page paths (includes dynamic routes like [slug])
+        const urls = pages
+          .map(page => {
+            const pathname = page.pathname;
+            // Normalize: remove trailing index.html, ensure leading slash
+            const cleanPath = pathname.replace(/index\.html$/, '').replace(/\/$/, '');
+            const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+            return `${siteUrl}${normalizedPath || '/'}`;
+          })
+          // Deduplicate and filter out 404
+          .filter((url, index, arr) => arr.indexOf(url) === index && !url.includes('/404'));
 
         if (urls.length === 0) {
           logger.info('No URLs found for submission.');

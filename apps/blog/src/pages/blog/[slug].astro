@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro"
 import Header from "@/components/Header.astro"
 import Footer from "@/components/Footer.astro"
+import UpdateBanner from "@/components/UpdateBanner.astro"
 import { getCollection } from "astro:content"
 import { LikeButton, CommentSection, ShareButtons } from "@traceroutex/ui"
 import ReviewSummary from "@/components/ReviewSummary.astro"
@@ -40,11 +41,17 @@ const postUrl = `${siteUrl}/blog/${post.slug}`
 const estimatedWordCount = post.data.readingTime * 200
 const coverImageUrl = post.data.coverImage.startsWith('http') ? post.data.coverImage : `${siteUrl}${post.data.coverImage}`
 
-// Get related posts (same category)
+// Get related posts by shared tags (cross-category for better internal linking)
 const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+const postTags = new Set(post.data.tags.map((t: string) => t.toLowerCase()))
 const relatedPosts = allPosts
-  .filter((p) => p.data.category === post.data.category && p.slug !== post.slug)
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+  .filter((p) => p.slug !== post.slug)
+  .map((p) => ({
+    ...p,
+    _sharedTags: p.data.tags.filter((t: string) => postTags.has(t.toLowerCase())).length,
+  }))
+  .filter((p) => p._sharedTags > 0 || p.data.category === post.data.category)
+  .sort((a, b) => b._sharedTags - a._sharedTags || b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
   .slice(0, 3)
 
 // ── BlogPosting JSON-LD (enhanced with entity graph @id references) ──
@@ -157,6 +164,9 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3)
   author={authorDisplayName}
   keywords={post.data.keywords}
 >
+  <!-- LCP preload: cover image -->
+  <link slot="head" rel="preload" as="image" href={post.data.coverImage} />
+
   <Header />
 
   <!-- JSON-LD -->
@@ -233,6 +243,11 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3)
             </a>
           </div>
         </header>
+
+        <!-- Freshness Signal -->
+        {post.data.updatedAt && (
+          <UpdateBanner updatedAt={post.data.updatedAt} publishedAt={post.data.publishedAt} />
+        )}
 
         <!-- Mobile Table of Contents -->
         {toc.length > 0 && (

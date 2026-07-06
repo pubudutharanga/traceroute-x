@@ -206,6 +206,9 @@ const webPageJsonLd = {
         } catch(e) {}
       })();
     </script>
+
+    <!-- Per-page head injections (LCP preloads, etc.) -->
+    <slot name="head" />
   </head>
   <body class="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
     <slot />

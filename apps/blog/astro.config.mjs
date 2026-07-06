@@ -24,6 +24,11 @@ export default defineConfig({
       },
       changefreq: "weekly",
       priority: 0.7,
+      filter(page) {
+        // Exclude 404 page from sitemap
+        if (page.includes("/404")) return false;
+        return true;
+      },
       serialize(item) {
         // Homepage gets highest priority
         if (item.url === "https://traceroutex.vercel.app/" || item.url === "https://traceroutex.vercel.app") {
@@ -44,6 +49,11 @@ export default defineConfig({
         else if (item.url.includes("/about")) {
           item.priority = 0.6;
           item.changefreq = "monthly";
+        }
+        // Tag/category pages get lower priority
+        else if (item.url.includes("/tag/") || item.url.includes("/category/")) {
+          item.priority = 0.3;
+          item.changefreq = "weekly";
         }
         return item;
       },

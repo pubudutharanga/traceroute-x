@@ -46,7 +46,7 @@ const breadcrumbJsonLd = {
 }
 ---
 
-<BaseLayout title={`#${tag} Articles`} description={`Browse all articles tagged with ${tag} on TraceRoute X — in-depth coverage for developers and tech enthusiasts.`}>
+<BaseLayout title={`#${tag} Articles`} description={`Browse all articles tagged with ${tag} on TraceRoute X — in-depth coverage for developers and tech enthusiasts.`} noIndex={posts.length < 2}>
   <Header />
 
   <script type="application/ld+json" set:html={JSON.stringify(collectionJsonLd)} />

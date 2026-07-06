@@ -1,0 +1,31 @@
+---
+interface Props {
+  updatedAt: Date
+  publishedAt: Date
+}
+
+const { updatedAt, publishedAt } = Astro.props
+
+// Only show if updated more than 7 days after publishing
+const showBanner = updatedAt && publishedAt &&
+  (updatedAt.getTime() - publishedAt.getTime()) > 7 * 24 * 60 * 60 * 1000
+
+const formattedDate = updatedAt?.toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+})
+---
+
+{showBanner && (
+  <div class="update-banner flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-sm text-emerald-700 dark:text-emerald-400 mb-6">
+    <svg class="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span>
+      <strong>Updated</strong>
+      <time datetime={updatedAt.toISOString()}>{formattedDate}</time>
+      — This article has been revised with the latest information.
+    </span>
+  </div>
+)}

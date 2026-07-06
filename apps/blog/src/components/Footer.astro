@@ -1,9 +1,26 @@
 ---
+import { getCollection } from "astro:content"
+
 const currentYear = new Date().getFullYear()
+
+// Get top posts for site-wide internal linking (SEO: distributes authority from every page)
+const allPosts = await getCollection("posts", ({ data }) => !data.draft)
+const popularPosts = allPosts
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+  .slice(0, 4)
 
 const footerLinks = [
   {
-    title: "Blog",
+    title: "Popular Articles",
+    links: popularPosts.map(post => ({
+      label: post.data.title.length > 40
+        ? post.data.title.substring(0, 40) + "…"
+        : post.data.title,
+      href: `/blog/${post.slug}`,
+    })),
+  },
+  {
+    title: "Categories",
     links: [
       { label: "All Posts", href: "/blog" },
       { label: "Headphone Reviews", href: "/blog/category/headphone-reviews" },
@@ -33,7 +50,7 @@ const footerLinks = [
 
 <footer class="border-t border-[var(--border-primary)] bg-[var(--bg-secondary)] mt-12 sm:mt-20">
   <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
       <!-- Brand -->
       <div class="sm:col-span-2 md:col-span-1">
         <a href="/" class="flex items-center gap-2 mb-4">

@@ -57,7 +57,7 @@ const itemListJsonLd = {
 }
 ---
 
-<BaseLayout title={`${category} Articles`} description={`Browse all ${category} articles on TraceRoute X — in-depth reviews, guides, and insights for the US tech community.`}>
+<BaseLayout title={`${category} Articles`} description={`Browse all ${category} articles on TraceRoute X — in-depth reviews, guides, and insights for the US tech community.`} noIndex={posts.length < 2}>
   <Header />
 
   <script type="application/ld+json" set:html={JSON.stringify(collectionJsonLd)} />
